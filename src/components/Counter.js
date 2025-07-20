@@ -1,4 +1,4 @@
-import { html, render } from 'lit-html';
+import { html, render } from 'lit';
 //import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { counterStore } from '../store/store';
 

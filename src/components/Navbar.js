@@ -1,68 +1,16 @@
-import { html } from 'lit-html';
+import { html } from 'lit';
 import { navigate } from '../router';
 import { themeStore, authStore } from '../store/store';
 
-/**
- * NavLink component for navigation
- * @param {Object} props - Component properties
- * @param {string} props.href - The URL to navigate to
- * @param {boolean} [props.exact] - Whether to match the href exactly
- * @param {string} [props.className] - Additional CSS classes
- * @param {string} [props.currentPath] - Current route path
- * @param {import('lit-html').TemplateResult} [props.children] - Child elements
- * @returns {import('lit-html').TemplateResult}
- */
-const NavLink = (props) => {
-  const { href, exact = false, className = '', currentPath = '/', children } = props;
+// Import the NavLink Web Component
+import './ui/NavLink';
 
-  // Determine if the link is active based on exact prop
-  const isActive = exact
-    ? currentPath === href
-    : href === '/'
-      ? currentPath === '/'
-      : currentPath.startsWith(href);
-
-  // Base classes for all nav links with animations
-  const baseClasses = 'transition-colors duration-200 ease-in-out cursor-pointer';
-
-  // Default variant (for regular navigation)
-  const defaultVariantClasses = isActive
-    ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-200 border-b-2 border-indigo-500 dark:border-indigo-400'
-    : 'text-gray-500 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/50 hover:text-gray-700 dark:hover:text-white border-b-2 border-transparent hover:border-gray-300 dark:hover:border-gray-500';
-
-  // Mobile variant with animations
-  const mobileVariantClasses = isActive
-    ? 'bg-indigo-50 dark:bg-indigo-900/30 border-l-4 border-indigo-500 dark:border-indigo-400 text-indigo-700 dark:text-indigo-100'
-    : 'border-transparent text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/50 hover:text-gray-800 dark:hover:text-white';
-
-  // Determine which variant to use
-  const isMobile = className.includes('mobile-variant');
-  const linkClasses = [
-    baseClasses,
-    isMobile
-      ? `block pl-3 pr-4 py-2 text-base font-medium ${mobileVariantClasses}`
-      : `inline-flex items-center px-3 py-2 text-sm font-medium ${defaultVariantClasses}`,
-    className.replace('mobile-variant', ''),
-  ]
-    .filter(Boolean)
-    .join(' ');
-
-  const handleClick = (e) => {
-    e.preventDefault();
-    navigate(href);
-  };
-
-  return html`
-    <a
-      href=${href}
-      class=${linkClasses}
-      @click=${handleClick}
-      aria-current=${isActive ? 'page' : 'false'}
-    >
-      ${children}
-    </a>
-  `;
-};
+// Navigation items
+const navItems = [
+  { href: '/', text: 'Home', exact: true },
+  { href: '/about', text: 'About' },
+  { href: '/blog', text: 'Blog' },
+];
 
 /**
  * Navbar component
@@ -71,13 +19,6 @@ const NavLink = (props) => {
  * @returns {import('lit-html').TemplateResult}
  */
 export default function Navbar(title = 'Vanilla App', currentPath = '/') {
-  // Navigation items
-  const navItems = [
-    { href: '/', text: 'Home', exact: true },
-    { href: '/about', text: 'About' },
-    { href: '/blog', text: 'Blog' },
-  ];
-
   // Get auth state from store
   const { isAuthenticated, user } = authStore.getState();
 
@@ -103,13 +44,16 @@ export default function Navbar(title = 'Vanilla App', currentPath = '/') {
 
             <!-- Desktop Navigation -->
             <div class="hidden sm:ml-6 sm:flex sm:space-x-2">
-              ${navItems.map((item) =>
-                NavLink({
-                  href: item.href,
-                  exact: item.exact,
-                  children: item.text,
-                  currentPath,
-                })
+              ${navItems.map(
+                (item) => html`
+                  <ui-nav-link
+                    href="${item.href}"
+                    ?exact="${item.exact}"
+                    class="inline-flex items-center px-3 py-2 rounded-md text-sm font-medium"
+                  >
+                    ${item.text}
+                  </ui-nav-link>
+                `
               )}
             </div>
           </div>
@@ -313,14 +257,17 @@ export default function Navbar(title = 'Vanilla App', currentPath = '/') {
       <!-- Mobile menu, show/hide based on menu state -->
       <div id="mobile-menu" class="hidden sm:hidden bg-white dark:bg-gray-800">
         <div class="pt-2 pb-3 space-y-1">
-          ${navItems.map((item) =>
-            NavLink({
-              href: item.href,
-              exact: item.exact,
-              children: item.text,
-              className: 'mobile-variant',
-              currentPath,
-            })
+          ${navItems.map(
+            (item) => html`
+              <ui-nav-link
+                href="${item.href}"
+                ?exact="${item.exact}"
+                mobile
+                class="block px-3 py-2 rounded-md text-base font-medium"
+              >
+                ${item.text}
+              </ui-nav-link>
+            `
           )}
           ${isAuthenticated
             ? html`

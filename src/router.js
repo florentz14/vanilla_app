@@ -1,5 +1,5 @@
 import { Router } from '@vaadin/router';
-import { render } from 'lit-html';
+import { render } from 'lit';
 import Home from './pages/Home';
 import About from './pages/About';
 import Blog from './pages/Blog';

@@ -2,6 +2,9 @@ import './style.css';
 import { initRouter } from './router';
 import { themeManager } from './utils/theme';
 
+// Import Web Components
+import './components'; // This will register all components
+
 // Initialize theme manager
 themeManager.init();
 

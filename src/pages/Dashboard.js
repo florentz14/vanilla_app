@@ -1,4 +1,4 @@
-import { html } from 'lit-html';
+import { html } from 'lit';
 import { navigate } from '../router';
 
 // Mock data - in a real app, this would come from an API

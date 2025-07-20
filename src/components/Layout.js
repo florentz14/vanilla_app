@@ -1,6 +1,7 @@
-import { html } from 'lit-html';
+import { html } from 'lit';
 import Navbar from './Navbar';
-import Footer from './Footer';
+// Import the Footer Web Component
+import './layout/Footer'; // This registers the custom element
 
 // Helper function to get the title case from path
 const getTitle = (path) => {
@@ -30,7 +31,7 @@ export default function Layout(content = '', currentPath = '/') {
     >
       ${Navbar(title, currentPath)}
       <main class="flex-grow container mx-auto px-4 py-8">${contentTemplate}</main>
-      ${Footer(currentPath)}
+      <app-footer></app-footer>
     </div>
   `;
 }

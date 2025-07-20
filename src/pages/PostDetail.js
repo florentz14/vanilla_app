@@ -1,4 +1,4 @@
-import { html } from 'lit-html';
+import { html } from 'lit';
 import postsData from '../data/post.json';
 import { navigate } from '../router';
 
