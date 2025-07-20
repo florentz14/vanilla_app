@@ -28,8 +28,9 @@ A modern, responsive Single Page Application (SPA) built with vanilla JavaScript
 ### Installation
 
 1. Clone the repository:
+
    ```bash
-   git clone https://github.com/yourusername/vanilla-app.git
+   git clone https://github.com/florentz14/vanilla-app.git
    cd vanilla-app
    ```
 
@@ -77,6 +78,7 @@ Toggle between themes using the theme switcher in the navigation bar.
 ## 📱 Responsive Navigation
 
 The navigation menu automatically adjusts for different screen sizes:
+
 - **Desktop**: Horizontal menu
 - **Mobile**: Hamburger menu that slides in from the right
 
