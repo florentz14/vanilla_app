@@ -1,5 +1,5 @@
 import { html, render } from 'lit-html';
-import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
+//import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { counterStore } from '../store/store';
 
 class Counter extends HTMLElement {
@@ -51,7 +51,7 @@ class Counter extends HTMLElement {
   updateCounter() {
     const template = html`
       <style>
-        .counter-container {
+        .counter {
           padding: 1.5rem;
           max-width: 24rem;
           margin-left: auto;
@@ -65,33 +65,42 @@ class Counter extends HTMLElement {
           align-items: center;
           gap: 1rem;
         }
-        .dark .counter-container {
+
+        .dark .counter {
           background-color: #374151;
         }
-        .counter-content {
+
+        .counter__content {
           flex: 1 1 0%;
+          width: 100%;
         }
-        .counter-title {
+
+        .counter__title {
           font-size: 1.25rem;
           font-weight: 700;
           color: #1f2937;
           margin-bottom: 0.5rem;
         }
-        .dark .counter-title {
+
+        .dark .counter__title {
           color: white;
         }
-        .counter-value {
+
+        .counter__value {
           color: #4b5563;
           margin-bottom: 1rem;
         }
-        .dark .counter-value {
+
+        .dark .counter__value {
           color: #d1d5db;
         }
-        .counter-buttons {
+
+        .counter__buttons {
           display: flex;
           gap: 0.5rem;
           margin-top: 1rem;
         }
+
         .btn {
           padding: 0.5rem 1rem;
           border-radius: 0.375rem;
@@ -100,28 +109,32 @@ class Counter extends HTMLElement {
           border: none;
           transition: background-color 0.2s;
         }
-        .btn-decrement {
+
+        .btn--decrement {
           background-color: #ef4444;
           color: white;
         }
-        .btn-decrement:hover {
+
+        .btn--decrement:hover {
           background-color: #dc2626;
         }
-        .btn-increment {
+
+        .btn--increment {
           background-color: #3b82f6;
           color: white;
         }
-        .btn-increment:hover {
+
+        .btn--increment:hover {
           background-color: #2563eb;
         }
       </style>
-      <div class="counter-container">
-        <div class="counter-content">
-          <h2 class="counter-title">Counter</h2>
-          <p class="counter-value">Current count: <strong>${this.count}</strong></p>
-          <div class="counter-buttons">
-            <button @click=${this.handleDecrement} class="btn btn-decrement">Decrement</button>
-            <button @click=${this.handleIncrement} class="btn btn-increment">Increment</button>
+      <div class="counter">
+        <div class="counter__content">
+          <h2 class="counter__title">Counter</h2>
+          <p class="counter__value">Current count: <strong>${this.count}</strong></p>
+          <div class="counter__buttons">
+            <button @click=${this.handleDecrement} class="btn btn--decrement">Decrement</button>
+            <button @click=${this.handleIncrement} class="btn btn--increment">Increment</button>
           </div>
         </div>
       </div>

@@ -8,7 +8,7 @@ A modern, responsive Single Page Application (SPA) built with vanilla JavaScript
 - **State Management**: Lightweight state management with `Zustand` (vanilla API)
 - **Authentication**: Complete auth flow with login, registration, and protected routes
 - **Data Fetching**: Advanced data fetching with `Axios`
-- **Form Validation**: Type-safe form validation with `Zod`
+- **Form Validation**: Robust form validation with `Yup`
 - **Dark/Light Mode**: Toggle between light and dark themes with system preference detection
 - **Responsive Design**: Mobile-first approach with a collapsible navigation menu
 - **Modern UI**: Clean, accessible interface with smooth transitions
@@ -23,7 +23,7 @@ A modern, responsive Single Page Application (SPA) built with vanilla JavaScript
 - **Build Tool**: [Vite](https://vitejs.dev/)
 - **State Management**: [Zustand](https://github.com/pmndrs/zustand) (vanilla API)
 - **Data Fetching**: [Axios](https://axios-http.com/)
-- **Form Validation**: [Zod](https://zod.dev/)
+- **Form Validation**: [Yup](https://github.com/jquense/yup)
 - **Routing**: [@vaadin/router](https://vaadin.github.io/router/)
 - **Code Quality**: [ESLint](https://eslint.org/), [Prettier](https://prettier.io/), [Husky](https://typicode.github.io/husky/), [lint-staged](https://github.com/okonet/lint-staged)
 

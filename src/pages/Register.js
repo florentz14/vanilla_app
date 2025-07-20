@@ -1,86 +1,117 @@
 import { html, render } from 'lit-html';
 import { navigate } from '../router';
-import { z } from 'zod';
+import debounce from 'lodash/debounce';
+import * as yup from 'yup';
 
-// Define the validation schema
-const registerSchema = z.object({
-  name: z
+// Validation schema with Yup
+const registerSchema = yup.object({
+  name: yup
     .string()
-    .min(3, 'Name must be at least 3 characters')
-    .max(50, 'Name cannot exceed 50 characters'),
-  email: z.string().email('Invalid email address').min(5, 'Email is required'),
-  password: z
+    .required('El nombre es requerido')
+    .min(3, 'El nombre debe tener al menos 3 caracteres'),
+
+  email: yup
     .string()
-    .min(8, 'Password must be at least 8 characters')
-    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-    .regex(/[0-9]/, 'Password must contain at least one number'),
-  terms: z.literal(true, {
-    errorMap: () => ({ message: 'You must accept the terms and conditions' }),
-  }),
+    .required('El correo electrónico es requerido')
+    .email('Ingresa un email válido'),
+
+  password: yup
+    .string()
+    .required('La contraseña es requerida')
+    .min(8, 'La contraseña debe tener al menos 8 caracteres')
+    .matches(/[A-Z]/, 'Debe contener al menos una letra mayúscula')
+    .matches(/[a-z]/, 'Debe contener al menos una letra minúscula')
+    .matches(/[0-9]/, 'Debe contener al menos un número'),
+
+  terms: yup.boolean().oneOf([true], 'Debes aceptar los términos y condiciones'),
 });
 
-// Error state
-let formErrors = {
-  name: '',
-  email: '',
-  password: '',
-  terms: '',
+// Module-scoped state
+const state = {
+  data: { name: '', email: '', password: '', terms: false },
+  errors: { name: '', email: '', password: '', terms: '' },
+  touched: { name: false, email: false, password: false, terms: false },
 };
 
-/**
- * Register page component
- * @returns {import('lit-html').TemplateResult}
- */
-const Register = () => {
-  // Store form data for re-rendering
-  let formData = {};
+// Re-render utility
+function reRender() {
+  const app = document.getElementById('app');
+  if (app) render(Register(), app);
+}
 
-  // Function to update the form with validation errors
-  const updateFormErrors = (errors, data = {}) => {
-    formErrors = { ...formErrors, ...errors };
-    formData = { ...formData, ...data };
-    // Re-render the component to show errors and preserve input
-    render(Register(), document.getElementById('app'));
+// Validate a single field
+async function validateField(field, value) {
+  try {
+    await registerSchema.validateAt(field, { [field]: value });
+    return '';
+  } catch (err) {
+    return err.message;
+  }
+}
+
+// Validate entire form
+async function validateForm() {
+  try {
+    await registerSchema.validate(state.data, { abortEarly: false });
+    return {};
+  } catch (err) {
+    const result = {};
+    err.inner.forEach((e) => {
+      result[e.path] = e.message;
+    });
+    return result;
+  }
+}
+
+// Debounced field validation
+const debouncedValidation = debounce(async (field, value) => {
+  if (state.touched[field]) {
+    state.errors[field] = await validateField(field, value);
+    reRender();
+  }
+}, 300);
+
+// Handlers
+function onInput(field) {
+  return (e) => {
+    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    state.data[field] = value;
+    debouncedValidation(field, value);
   };
+}
 
-  // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
+function onBlur(field) {
+  return async (e) => {
+    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    state.touched[field] = true;
+    state.data[field] = value;
+    state.errors[field] = await validateField(field, value);
+    reRender();
+  };
+}
 
-    const formData = {
-      name: e.target.name.value,
-      email: e.target.email.value,
-      password: e.target.password.value,
-      terms: e.target.terms.checked,
-    };
+async function onSubmit(e) {
+  e.preventDefault();
+  // Mark all touched
+  Object.keys(state.touched).forEach((k) => (state.touched[k] = true));
 
-    // Validate the form data
-    const result = registerSchema.safeParse(formData);
-
-    if (!result.success) {
-      // Clear previous errors
-      const newErrors = { name: '', email: '', password: '', terms: '' };
-
-      // Map validation errors to form fields
-      result.error.errors.forEach((error) => {
-        const field = error.path[0];
-        if (field in newErrors) {
-          newErrors[field] = error.message;
-        }
-      });
-
-      updateFormErrors(newErrors);
-      return;
-    }
-
-    // If validation passes, proceed with registration
-    console.log('Registration attempt with:', formData);
-
-    // In a real app, you would make an API call here
-    // For now, just navigate to login
+  const errors = await validateForm();
+  if (Object.keys(errors).length === 0) {
+    console.log('Datos válidos:', state.data);
+    // reset
+    state.data = { name: '', email: '', password: '', terms: false };
+    state.errors = { name: '', email: '', password: '', terms: '' };
+    state.touched = { name: false, email: false, password: false, terms: false };
     navigate('/login');
-  };
+  } else {
+    state.errors = { ...state.errors, ...errors };
+    reRender();
+  }
+}
+
+// Register component
+function Register() {
+  const { data, errors, touched } = state;
 
   return html`
     <div
@@ -88,117 +119,135 @@ const Register = () => {
     >
       <div class="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-          Create a new account
+          Crear nueva cuenta
         </h2>
         <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-          Or
+          ¿Ya tienes cuenta?
           <a
             href="/login"
-            class="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
             @click=${(e) => {
               e.preventDefault();
               navigate('/login');
             }}
+            class="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
           >
-            sign in to your account
+            Inicia sesión
           </a>
         </p>
       </div>
 
       <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div class="bg-white dark:bg-gray-800 py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <form class="space-y-6" @submit=${handleSubmit}>
+          <form class="space-y-6" @submit=${onSubmit} novalidate>
+            <!-- Name -->
             <div>
-              <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Full name
-              </label>
+              <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >Nombre completo</label
+              >
               <div class="mt-1">
                 <input
                   id="name"
                   name="name"
                   type="text"
                   autocomplete="name"
-                  required
-                  class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white"
+                  .value=${data.name}
+                  @input=${onInput('name')}
+                  @blur=${onBlur('name')}
+                  class="appearance-none block w-full px-3 py-2 border ${touched.name && errors.name
+                    ? 'border-red-500'
+                    : 'border-gray-300'} rounded-md shadow-sm focus:outline-none sm:text-sm"
+                  placeholder="Ingresa tu nombre completo"
                 />
+                ${touched.name && errors.name
+                  ? html`<p class="mt-1 text-sm text-red-600">${errors.name}</p>`
+                  : ''}
               </div>
             </div>
-
+            <!-- Email -->
             <div>
-              <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Email address
-              </label>
+              <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >Correo electrónico</label
+              >
               <div class="mt-1">
                 <input
                   id="email"
                   name="email"
                   type="email"
                   autocomplete="email"
-                  required
-                  class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white"
+                  .value=${data.email}
+                  @input=${onInput('email')}
+                  @blur=${onBlur('email')}
+                  class="appearance-none block w-full px-3 py-2 border ${touched.email &&
+                  errors.email
+                    ? 'border-red-500'
+                    : 'border-gray-300'} rounded-md shadow-sm focus:outline-none sm:text-sm"
+                  placeholder="correo@ejemplo.com"
                 />
+                ${touched.email && errors.email
+                  ? html`<p class="mt-1 text-sm text-red-600">${errors.email}</p>`
+                  : ''}
               </div>
             </div>
-
+            <!-- Password -->
             <div>
               <label
                 for="password"
                 class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >Contraseña</label
               >
-                Password
-              </label>
               <div class="mt-1">
                 <input
                   id="password"
                   name="password"
                   type="password"
                   autocomplete="new-password"
-                  required
-                  class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white"
+                  .value=${data.password}
+                  @input=${onInput('password')}
+                  @blur=${onBlur('password')}
+                  class="appearance-none block w-full px-3 py-2 border ${touched.password &&
+                  errors.password
+                    ? 'border-red-500'
+                    : 'border-gray-300'} rounded-md shadow-sm focus:outline-none sm:text-sm"
+                  placeholder="Mínimo 8 caracteres"
                 />
+                ${touched.password && errors.password
+                  ? html`<p class="mt-1 text-sm text-red-600">${errors.password}</p>`
+                  : ''}
               </div>
-              <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                Use at least 8 characters, one uppercase, one lowercase and one number.
+              <p class="mt-2 text-sm text-gray-500">
+                Usa al menos 8 caracteres, una mayúscula, una minúscula y un número.
               </p>
             </div>
-
-            <div class="flex items-center">
-              <input
-                id="terms"
-                name="terms"
-                type="checkbox"
-                required
-                class="h-4 w-4 ${formErrors.terms
-                  ? 'text-red-600 border-red-500'
-                  : 'text-indigo-600 border-gray-300 dark:border-gray-600'} focus:ring-indigo-500 rounded dark:bg-gray-700"
-              />
-              ${formErrors.terms
-                ? html`<p class="mt-1 text-sm text-red-600 dark:text-red-400">
-                    ${formErrors.terms}
-                  </p>`
-                : ''}
-              <label for="terms" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                I agree to the
-                <a
-                  href="#"
-                  class="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
-                  >Terms</a
-                >
-                and
-                <a
-                  href="#"
-                  class="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
-                  >Privacy Policy</a
-                >
+            <!-- Terms -->
+            <div>
+              <label class="flex items-center">
+                <input
+                  id="terms"
+                  name="terms"
+                  type="checkbox"
+                  .checked=${data.terms}
+                  @change=${onInput('terms')}
+                  @blur=${onBlur('terms')}
+                  class="h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                />
+                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                  Acepto los
+                  <a href="#" class="text-indigo-600 hover:text-indigo-500">Términos</a> y
+                  <a href="#" class="text-indigo-600 hover:text-indigo-500"
+                    >Política de Privacidad</a
+                  >
+                </span>
               </label>
+              ${touched.terms && errors.terms
+                ? html`<p class="mt-1 text-sm text-red-600">${errors.terms}</p>`
+                : ''}
             </div>
-
             <div>
               <button
                 type="submit"
-                class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none"
               >
-                Create account
+                Crear cuenta
               </button>
             </div>
           </form>
@@ -206,6 +255,11 @@ const Register = () => {
       </div>
     </div>
   `;
-};
+}
+
+// Initial render
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', reRender);
+}
 
 export default Register;
