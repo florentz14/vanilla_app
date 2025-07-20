@@ -19,21 +19,25 @@ function createView(component, title = 'Vanilla App') {
     // Update document title
     document.title = `${title} | Vanilla App`;
 
-    // Create a container for the view content
-    if (!currentOutlet) {
-      currentOutlet = document.createElement('div');
-      currentOutlet.id = 'router-outlet';
-      document.body.appendChild(currentOutlet);
+    // Get the app container
+    const app = document.getElementById('app');
+    if (!app) return null;
+
+    // Create or get the outlet container
+    let outlet = document.getElementById('router-outlet');
+    if (!outlet) {
+      outlet = document.createElement('div');
+      outlet.id = 'router-outlet';
+      app.appendChild(outlet);
     }
 
     // Create the layout with the component
     const layout = Layout(component, context.pathname);
 
-    // Render the layout to the container
-    render(layout, currentOutlet);
+    // Render the layout to the outlet container
+    render(layout, outlet);
 
-    // Return the container
-    return currentOutlet;
+    return outlet;
   };
 }
 
