@@ -1,0 +1,22 @@
+[
+  {
+    "icon": "🚀",
+    "title": "Lightning Fast",
+    "description": "Built with Vite for an incredibly fast development experience and optimal production builds."
+  },
+  {
+    "icon": "🌓",
+    "title": "Dark Mode",
+    "description": "Beautiful dark mode that respects system preferences with automatic switching."
+  },
+  {
+    "icon": "📱",
+    "title": "Fully Responsive",
+    "description": "Looks great on all devices, from mobile phones to large desktop screens."
+  },
+  {
+    "icon": "⚡",
+    "title": "Optimized",
+    "description": "Performance-optimized with code splitting and lazy loading for faster page loads."
+  }
+]

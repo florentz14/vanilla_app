@@ -1,22 +1,31 @@
-# Vanilla JavaScript SPA Starter
+# Vanilla JavaScript SPA
 
-A modern, responsive Single Page Application (SPA) built with vanilla JavaScript, featuring a custom router, theme switching, and mobile-responsive design.
+A modern, responsive Single Page Application (SPA) built with vanilla JavaScript, featuring client-side routing, authentication flows, theme switching, and mobile-responsive design. This project demonstrates how to build a full-featured SPA without heavy frameworks like React or Vue.
 
 ## 🚀 Features
 
-- **Client-Side Routing**: Custom router implementation for seamless navigation
-- **Dark/Light Mode**: Toggle between light, dark, and system theme preferences
+- **Client-Side Routing**: Powered by `@vaadin/router` for seamless navigation
+- **State Management**: Lightweight state management with `Zustand` (vanilla API)
+- **Authentication**: Complete auth flow with login, registration, and protected routes
+- **Data Fetching**: Advanced data fetching with `Axios`
+- **Form Validation**: Type-safe form validation with `Zod`
+- **Dark/Light Mode**: Toggle between light and dark themes with system preference detection
 - **Responsive Design**: Mobile-first approach with a collapsible navigation menu
 - **Modern UI**: Clean, accessible interface with smooth transitions
-- **No Frameworks**: Built with vanilla JavaScript for optimal performance
+- **No Heavy Frameworks**: Built with vanilla JavaScript for optimal performance
+- **Component-Based**: Reusable web components with `lit-html` for templating
 
 ## 🛠️ Tech Stack
 
 - **Core**: Vanilla JavaScript (ES6+)
+- **Templating**: [lit-html](https://lit-html.polymer-project.org/)
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/)
 - **Build Tool**: [Vite](https://vitejs.dev/)
-- **Linting**: [ESLint](https://eslint.org/)
-- **Formatting**: [Prettier](https://prettier.io/)
+- **State Management**: [Zustand](https://github.com/pmndrs/zustand) (vanilla API)
+- **Data Fetching**: [Axios](https://axios-http.com/)
+- **Form Validation**: [Zod](https://zod.dev/)
+- **Routing**: [@vaadin/router](https://vaadin.github.io/router/)
+- **Code Quality**: [ESLint](https://eslint.org/), [Prettier](https://prettier.io/), [Husky](https://typicode.github.io/husky/), [lint-staged](https://github.com/okonet/lint-staged)
 
 ## 🚀 Getting Started
 
@@ -65,6 +74,27 @@ yarn build
 
 The build artifacts will be stored in the `dist/` directory.
 
+## 🏗️ Project Structure
+
+```
+src/
+├── components/     # Reusable UI components
+├── pages/         # Page components
+├── store/         # State management
+├── styles/        # Global styles
+├── utils/         # Utility functions
+└── router.js      # Application routes
+```
+
+### Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
+- `npm run format` - Format code with Prettier
+- `npm run type-check` - Run TypeScript type checking
+
 ## 🎨 Theme Customization
 
 This project supports three theme modes:
@@ -90,37 +120,36 @@ The application includes a custom router with the following routes:
 - `/about` - About page
 - `*` - 404 page (catches all undefined routes)
 
-## 📂 Project Structure
+## 🔒 Authentication
 
-```
-src/
-├── components/     # Reusable UI components
-│   ├── Navbar.js   # Navigation bar component
-│   └── NavLink.js  # Navigation link component
-├── pages/          # Page components
-│   ├── Home.js
-│   └── About.js
-├── utils/          # Utility functions
-│   ├── router.js   # Custom router implementation
-│   └── theme.js    # Theme management
-└── index.js        # Application entry point
-```
+The application includes a complete authentication flow:
 
-## 🧪 Testing
+- User registration
+- Login/Logout
+- Protected routes
+- Persistent sessions
 
-Run tests with:
+## 🎨 Theming
 
-```bash
-npm test
-# or
-yarn test
-```
+- Light/dark mode with system preference detection
+- Theme persists across page reloads
+- Smooth transitions between themes
+
+## 🚀 Deployment
+
+1. Build the application:
+
+   ```bash
+   npm run build
+   ```
+
+2. Deploy the `dist` folder to your preferred static hosting service (Netlify, Vercel, GitHub Pages, etc.)
 
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## 📄 License
+## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
